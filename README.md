@@ -10,11 +10,7 @@ A simple web application to manage and get reminders for your subscriptions. Thi
 - Users can add their subscription details (e.g., Netflix, Amazon Prime).
 - The app stores the subscription data in a database.
 - It checks for upcoming renewals and sends reminder emails to the registered email address.
- # Screenshots
-Home Page
-![IMG](IMG.jpg)
 
-Add Subscription
 # Setup Instructions
 1. Prerequisites
 - Python 3.8 or higher installed.
