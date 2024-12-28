@@ -12,6 +12,8 @@ A simple web application to manage and get reminders for your subscriptions. Thi
 - It checks for upcoming renewals and sends reminder emails to the registered email address.
  # Screenshots
 Home Page
+![My Image](IMG.jpg)
+
 Add Subscription
 # Setup Instructions
 1. Prerequisites
