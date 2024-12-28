@@ -1,0 +1,10 @@
+SubscriptionReminder/
+├── app.py
+├── templates/
+│   ├── index.html
+│   ├── add_subscription.html
+├── static/
+│   ├── styles.css
+├── requirements.txt
+├── README.md
+├── database.db (generated when the app runs)
