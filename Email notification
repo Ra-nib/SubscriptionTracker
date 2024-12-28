@@ -1,0 +1,30 @@
+from flask_mail import Mail, Message
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your_email@gmail.com'  # Replace with your email
+app.config['MAIL_PASSWORD'] = 'your_password'         # Replace with your email password
+
+mail = Mail(app)
+
+def send_email(to, subject, body):
+    msg = Message(subject, sender=app.config['MAIL_USERNAME'], recipients=[to])
+    msg.body = body
+    mail.send(msg)
+
+@app.route('/send_reminders')
+def send_reminders_email():
+    today = datetime.now()
+    with sqlite3.connect('database.db') as conn:
+        subscriptions = conn.execute("SELECT * FROM subscriptions").fetchall()
+        for sub in subscriptions:
+            renewal_date = datetime.strptime(sub[3], '%Y-%m-%d')
+            if today <= renewal_date <= today + timedelta(days=3):
+                send_email(
+                    to="user_email@example.com",  # Replace with recipient email
+                    subject=f"Reminder: {sub[1]} subscription due soon!",
+                    body=f"Your subscription to {sub[1]} is due on {sub[3]}. Amount: ${sub[2]}"
+                )
+    return "Reminder emails sent successfully!"
