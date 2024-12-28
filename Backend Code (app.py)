@@ -1,0 +1,68 @@
+from flask import Flask, render_template, request, redirect
+from flask_mail import Mail, Message
+import sqlite3
+from datetime import datetime, timedelta
+import os
+
+app = Flask(__name__)
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'your_email@gmail.com')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'your_password')
+
+mail = Mail(app)
+
+# Database initialization
+def init_db():
+    with sqlite3.connect('database.db') as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS subscriptions (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT NOT NULL,
+                            amount REAL NOT NULL,
+                            renewal_date TEXT NOT NULL
+                        )''')
+
+@app.route('/')
+def index():
+    with sqlite3.connect('database.db') as conn:
+        subscriptions = conn.execute("SELECT * FROM subscriptions").fetchall()
+    return render_template('index.html', subscriptions=subscriptions)
+
+@app.route('/add', methods=['GET', 'POST'])
+def add_subscription():
+    if request.method == 'POST':
+        name = request.form['name']
+        amount = request.form['amount']
+        renewal_date = request.form['renewal_date']
+        with sqlite3.connect('database.db') as conn:
+            conn.execute("INSERT INTO subscriptions (name, amount, renewal_date) VALUES (?, ?, ?)",
+                         (name, amount, renewal_date))
+        return redirect('/')
+    return render_template('add_subscription.html')
+
+@app.route('/send_reminders')
+def send_reminders_email():
+    today = datetime.now()
+    with sqlite3.connect('database.db') as conn:
+        subscriptions = conn.execute("SELECT * FROM subscriptions").fetchall()
+        for sub in subscriptions:
+            renewal_date = datetime.strptime(sub[3], '%Y-%m-%d')
+            if today <= renewal_date <= today + timedelta(days=3):
+                send_email(
+                    to="user_email@example.com",  # Replace with recipient email
+                    subject=f"Reminder: {sub[1]} subscription due soon!",
+                    body=f"Your subscription to {sub[1]} is due on {sub[3]}. Amount: ${sub[2]}"
+                )
+    return "Reminder emails sent successfully!"
+
+def send_email(to, subject, body):
+    msg = Message(subject, sender=app.config['MAIL_USERNAME'], recipients=[to])
+    msg.body = body
+    mail.send(msg)
+
+if __name__ == '__main__':
+    init_db()
+    app.run(debug=True)
