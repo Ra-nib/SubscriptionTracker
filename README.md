@@ -3,7 +3,9 @@ A simple web application to manage and get reminders for your subscriptions. Thi
 
 # Features
  Add Subscriptions: Easily add subscriptions with details like name, amount, and renewal date.
+ 
  View Subscriptions: View all your subscriptions in a table format.
+ 
  Email Reminders: Automatically sends email notifications for subscriptions due within 3 days.
 
 # How It Works
